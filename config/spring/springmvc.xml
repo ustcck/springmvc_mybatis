@@ -1,0 +1,68 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.2.xsd 
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-3.2.xsd ">
+
+	<!-- 使用spring组件扫描 -->
+	<context:component-scan base-package="cn.ustc.ssm.controller" />
+
+	<!-- 通过annotation-driven可以替代下边的处理器映射器和适配器 -->
+<!-- 	<mvc:annotation-driven conversion-service="conversionService">
+</mvc:annotation-driven>
+	-->
+	
+	<!-- 注解处理器映射器 -->
+	<bean
+		class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping">
+	</bean>
+
+
+	<!-- 注解适配器 -->
+	<bean
+		class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+		<!-- 在webBindingInitializer中注入自定义属性编辑器、自定义转换器 -->
+		<property name="webBindingInitializer" ref="customBinder"/>
+	</bean>
+
+	<!-- 配置视图解析器 要求将jstl的包加到classpath -->
+	<!-- ViewResolver -->
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/jsp/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	
+	<!-- 自定义webBinder -->
+	<bean id="customBinder"
+		class="org.springframework.web.bind.support.ConfigurableWebBindingInitializer">
+		<!-- 使用converter进行参数转 -->
+		<property name="conversionService" ref="conversionService" />
+		
+		<!-- propertyEditorRegistrars用于属性编辑器 -->
+		<!-- <property name="propertyEditorRegistrars">
+			<list>
+				<ref bean="customPropertyEditor" />
+			</list>
+		</property> -->
+	</bean>
+	
+	<!-- 注册属性编辑器 -->
+	<bean id="customPropertyEditor" class="cn.ustc.ssm.controller.propertyeditor.CustomPropertyEditor"/>
+	
+	<!-- 转换器 -->
+    <bean id="conversionService"
+		class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+		<property name="converters">
+			<list>
+				<bean class="cn.ustc.ssm.controller.converter.CustomDateConverter"/>
+				<bean class="cn.ustc.ssm.controller.converter.StringTrimConverter"/>
+			</list>
+		</property>
+	</bean> 
+
+
+</beans>
